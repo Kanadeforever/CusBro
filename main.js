@@ -59,9 +59,9 @@ class Logger {
       second: '2-digit',
       hour12: false
     })
-    .replace(/\//g, '-')    // 替换斜杠为连字符
-    .replace(/\s/g, '-')    // 替换空格为连字符
-    .replace(/:/g, '-');    // 替换冒号为连字符
+      .replace(/\//g, '-')    // 替换斜杠为连字符
+      .replace(/\s/g, '-')    // 替换空格为连字符
+      .replace(/:/g, '-');    // 替换冒号为连字符
   }
 
   writeLog(level, message, error = null) {
@@ -360,7 +360,17 @@ function getDefaultConfig() {
       downloadPath: 'Downloads',
       enableContextMenu: true,
       allowDevTools: false,
-      ignoreCertificateErrors: false
+      ignoreCertificateErrors: false,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
+      allowDisplayingInsecureContent: false,
+      experimentalFeatures: false,
+      plugins: false,
+      proxyServer: '',
+      userAgent: '',
+      cacheSize: 100,
+      enableRemoteModule: false,
+      nodeIntegration: false
     },
     shortcuts: {
       settings: 'F1',
@@ -429,6 +439,7 @@ function setupCertificateErrorHandler(ignoreCertificateErrors) {
 
 // 处理 URL，支持本地文件
 function processUrl(url, localPageRoot) {
+  // 如果 URL 以 local:// 开头，检查本地文件
   if (url.startsWith('local://')) {
     const fileName = url.substring(8);
     const localPagePath = path.resolve(getConfigPath(), '..', localPageRoot);
@@ -438,10 +449,12 @@ function processUrl(url, localPageRoot) {
       return `file://${filePath}`;
     } else {
       console.warn(`本地文件不存在: ${filePath}`);
-      return 'local://index.html';
+      // 不再回退到 index.html，直接返回文件路径（即使文件不存在）
+      return `file://${filePath}`;
     }
   }
 
+  // 如果不是标准协议，添加 https://
   if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('file://')) {
     return `https://${url}`;
   }
@@ -503,10 +516,13 @@ let logger = null;
 function createWindow() {
   // 创建本地网页目录
   const localPagePath = path.resolve(getConfigPath(), '..', config.localPageRoot);
+
+  // 检查目录是否已经存在
+  const localPageExists = fs.existsSync(localPagePath);
   const validatedLocalPagePath = createDirectorySafely(localPagePath, '本地网页');
 
-  // 创建示例HTML文件（如果不存在）
-  if (!fs.existsSync(path.join(validatedLocalPagePath, 'index.html'))) {
+  // 只在目录首次创建时生成示例 HTML 文件
+  if (!localPageExists) {
     const sampleHtml = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -532,7 +548,7 @@ function createWindow() {
         <p>这个文件是本应用的配置文件，内含功能注释，请按需调整。</p>
         <p>以及，这个页面是一个示例，展示应用读取本地离线HTML页面。</p>
         <p>这个示例的HTML文件储存在程序目录下的 <code>LocalPage</code> 文件夹内，可自行替换你的本地web应用，或者将它删掉。</p>
-        <p>（虽然在你没有放置名为index.html的本地页面的情况下它还是会生成的。）</p>
+        <p>（这个文件只在首次创建 LocalPage 目录时生成，删除后不会重新生成。）</p>
         <p>您的使用数据一般情况下会储存在 <code>UserData/WebData</code> 目录内，由Electron负责储存。</p>
         <p>而您从web应用里导出的下载程序一般情况下会储存在 <code>UserData/Downloads</code> 目录内，遵循同名文件直接覆盖的原则。这个部分问就是能力有限暂时没改。</p>
         <p>最后，您可以在配置文件中使用 <code>local://index.html</code> 来加载本地页面。</p>
@@ -549,7 +565,7 @@ function createWindow() {
 </html>`;
 
     fs.writeFileSync(path.join(validatedLocalPagePath, 'index.html'), sampleHtml);
-    logger.info('已创建示例HTML文件');
+    logger.info('已创建示例HTML文件（首次运行）');
   }
 
   // 窗口选项
@@ -581,15 +597,54 @@ function createWindow() {
   // 创建中文菜单
   createChineseMenu();
 
-  // 处理URL
+  // 处理URL - 始终优先使用配置中的URL
   const processedUrl = processUrl(config.url, config.localPageRoot);
   logger.info(`加载网址: ${processedUrl}`);
 
-  // 加载URL
+  // 加载URL - 如果失败显示错误页面
   mainWindow.loadURL(processedUrl).catch(error => {
     logger.error('加载URL失败', error);
-    const fallbackUrl = processUrl('local://index.html', config.localPageRoot);
-    mainWindow.loadURL(fallbackUrl);
+
+    // 获取详细的诊断信息
+    const diagnosticInfo = getDetailedDiagnosticInfo(config, processedUrl, error);
+
+    // 创建详细的错误页面
+    //     const errorHtml = generateDetailedErrorPage(diagnosticInfo);
+
+
+    //     // 创建错误页面
+    //     const errorHtml = `<!DOCTYPE html>
+    // <html lang="zh-CN">
+    // <head>
+    //     <meta charset="UTF-8">
+    //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    //     <title>加载失败</title>
+    //     <style>
+    //         body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+    //         .error-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+    //         h1 { color: #e74c3c; margin-bottom: 20px; }
+    //         .url { background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 15px 0; font-family: monospace; }
+    //         .message { color: #666; margin: 10px 0; }
+    //     </style>
+    // </head>
+    // <body>
+    //     <div class="error-container">
+    //         <h1>页面加载失败</h1>
+    //         <div class="message">无法加载配置的URL：</div>
+    //         <div class="url">${config.url}</div>
+    //         <div class="message">处理后的URL：</div>
+    //         <div class="url">${processedUrl}</div>
+    //         <div class="message">错误信息：${error.message}</div>
+    //         <div class="message">请检查配置文件中的URL设置或网络连接。</div>
+    //     </div>
+    // </body>
+    // </html>`;
+
+    //     mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`);
+
+    // 生成详细的错误页面并加载
+    const errorHtml = generateDetailedErrorPage(diagnosticInfo);
+    mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`);
   });
 
   // 设置弹出窗口处理
@@ -607,6 +662,165 @@ function createWindow() {
 
   // 设置窗口事件
   setupWindowEvents();
+
+  // 设置初始焦点状态
+  isWindowFocused = mainWindow.isFocused();
+}
+
+// 获取详细诊断信息
+function getDetailedDiagnosticInfo(config, processedUrl, error) {
+  const { net } = require('electron');
+  const dns = require('dns');
+
+  return {
+    timestamp: new Date().toLocaleString(),
+    originalUrl: config.url,
+    processedUrl: processedUrl,
+    errorDetails: {
+      message: error.message,
+      code: error.code,
+      description: error.description || '无详细描述'
+    },
+    configSettings: {
+      ignoreCertificateErrors: config.behavior.ignoreCertificateErrors,
+      hardwareAcceleration: config.behavior.hardwareAcceleration,
+      allowRunningInsecureContent: config.behavior.allowRunningInsecureContent || false,
+      webSecurity: config.behavior.webSecurity !== false
+    },
+    networkInfo: {
+      online: require('dns').resolve('www.baidu.com', (err) => !err), // 简单网络检查
+      userAgent: session.defaultSession.getUserAgent()
+    }
+  };
+}
+
+// 生成详细错误页面
+function generateDetailedErrorPage(diagnosticInfo) {
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>页面加载失败 - 详细诊断</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%); color: #333; line-height: 1.6; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1000px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); margin: 20px auto; }
+        h1 { color: #e74c3c; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e74c3c; font-size: 28px; }
+        h2 { color: #2c3e50; margin: 25px 0 15px 0; font-size: 20px; }
+        .section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3498db; }
+        .error-section { border-left-color: #e74c3c; background: #fff5f5; }
+        .config-section { border-left-color: #f39c12; background: #fffbf0; }
+        .network-section { border-left-color: #27ae60; background: #f0fff4; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .info-item { margin-bottom: 12px; }
+        .label { font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+        .value { background: white; padding: 8px 12px; border-radius: 4px; border: 1px solid #e1e8ed; font-family: 'Courier New', monospace; font-size: 14px; word-break: break-all; }
+        .error-value { background: #ffeaea; border-color: #e74c3c; color: #c0392b; }
+        .success-value { background: #e8f5e8; border-color: #27ae60; color: #27ae60; }
+        .warning-value { background: #fff3cd; border-color: #ffc107; color: #856404; }
+        .suggestions { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 20px; border-radius: 8px; margin-top: 25px; }
+        .suggestion-item { margin: 10px 0; padding-left: 20px; position: relative; }
+        .suggestion-item:before { content: "💡"; position: absolute; left: 0; }
+        .timestamp { text-align: right; color: #7f8c8d; font-size: 14px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚫 页面加载失败 - 详细诊断信息</h1>
+        
+        <div class="section error-section">
+            <h2>错误详情</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">错误信息</div>
+                    <div class="value error-value">${diagnosticInfo.errorDetails.message}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">错误代码</div>
+                    <div class="value error-value">${diagnosticInfo.errorDetails.code}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">错误描述</div>
+                    <div class="value error-value">${diagnosticInfo.errorDetails.description}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>URL信息</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">配置的URL</div>
+                    <div class="value">${diagnosticInfo.originalUrl}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">处理后的URL</div>
+                    <div class="value">${diagnosticInfo.processedUrl}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section config-section">
+            <h2>当前安全配置</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">忽略证书错误</div>
+                    <div class="value ${diagnosticInfo.configSettings.ignoreCertificateErrors ? 'warning-value' : ''}">
+                        ${diagnosticInfo.configSettings.ignoreCertificateErrors ? '已启用' : '已禁用'}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="label">硬件加速</div>
+                    <div class="value ${diagnosticInfo.configSettings.hardwareAcceleration ? 'success-value' : 'warning-value'}">
+                        ${diagnosticInfo.configSettings.hardwareAcceleration ? '已启用' : '已禁用'}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="label">允许不安全内容</div>
+                    <div class="value ${diagnosticInfo.configSettings.allowRunningInsecureContent ? 'warning-value' : ''}">
+                        ${diagnosticInfo.configSettings.allowRunningInsecureContent ? '已启用' : '已禁用'}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Web安全策略</div>
+                    <div class="value ${diagnosticInfo.configSettings.webSecurity ? 'success-value' : 'error-value'}">
+                        ${diagnosticInfo.configSettings.webSecurity ? '已启用' : '已禁用'}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section network-section">
+            <h2>网络状态</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">网络连接</div>
+                    <div class="value ${diagnosticInfo.networkInfo.online ? 'success-value' : 'error-value'}">
+                        ${diagnosticInfo.networkInfo.online ? '在线' : '离线'}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="label">User Agent</div>
+                    <div class="value">${diagnosticInfo.networkInfo.userAgent}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="suggestions">
+            <h2>💡 解决方案建议</h2>
+            <div class="suggestion-item">检查网络连接是否正常</div>
+            <div class="suggestion-item">验证URL地址是否正确</div>
+            <div class="suggestion-item">在设置中启用"忽略证书错误"（用于测试环境）</div>
+            <div class="suggestion-item">检查防火墙或安全软件设置</div>
+            <div class="suggestion-item">尝试使用HTTP而不是HTTPS（如果适用）</div>
+            <div class="suggestion-item">在设置中调整安全策略选项</div>
+        </div>
+
+        <div class="timestamp">诊断时间: ${diagnosticInfo.timestamp}</div>
+    </div>
+</body>
+</html>`;
 }
 
 // 创建包含设置菜单的中文菜单
@@ -732,7 +946,7 @@ function createChineseMenu() {
               type: 'info',
               title: '关于',
               message: '自定义浏览器',
-              detail: '版本 2.0.0\n\nElectron版本 38.2.0\n\nElectron-Builder版本 26.0.12\n\n\n基于 Electron 框架构建，集成设置系统和日志功能。\n作用是拿来打开一些只有webui的应用。\n\n我知道肯定有人会说“用浏览器就好了呀？”\n有没有可能有的人就是觉得用主浏览器太重了？\n有时候只想打开一个应用，而不想开浏览器？\n又或者打开浏览器但不想看到标题栏和标签栏？\n等等等等……\n这个拿electron+deepseek简单写的应用就是为了这样的场景而生的。\n而且本就是自用，分享出来不过是为了给有同样需求但不太会编程的朋友一个凑合用的方案。\n毕竟陶德说过，"it just works!"\n\n至于为什么用electron？\n水平不行是一方面，之前1.0.0版用python+webview做的那个只有最基本的功能，实在是有点不满意……\n至于现在嘛……凑合用吧，至少凑合用的话个人还算满意了。\n\n\n“是的,它能跑!”\n\n                                                by Luminous'
+              detail: '版本 2.0.0\n\nElectron版本 38.2.0\n\nElectron-Builder版本 26.0.12\n\n\n基于 Electron 框架构建，集成设置系统和日志功能。\n作用是拿来打开一些只有webui的应用。\n\n我知道肯定有人会说"用浏览器就好了呀？"\n有没有可能有的人就是觉得用主浏览器太重了？\n有时候只想打开一个应用，而不想开浏览器？\n又或者打开浏览器但不想看到标题栏和标签栏？\n等等等等……\n这个拿electron+deepseek简单写的应用就是为了这样的场景而生的。\n而且本就是自用，分享出来不过是为了给有同样需求但不太会编程的朋友一个凑合用的方案。\n毕竟陶德说过，"it just works!"\n\n至于为什么用electron？\n水平不行是一方面，之前1.0.0版用python+webview做的那个只有最基本的功能，实在是有点不满意……\n至于现在嘛……凑合用吧，至少凑合用的话个人还算满意了。\n\n\n"是的,它能跑!"\n\n                                                by Luminous'
             });
           }
         }
@@ -864,6 +1078,16 @@ function setupContextMenu() {
 
 // 设置窗口事件
 function setupWindowEvents() {
+  mainWindow.on('focus', () => {
+    isWindowFocused = true;
+    if (logger) logger.info('窗口获得焦点，快捷键已启用');
+  });
+
+  mainWindow.on('blur', () => {
+    isWindowFocused = false;
+    if (logger) logger.info('窗口失去焦点，快捷键已禁用');
+  });
+
   mainWindow.webContents.on('page-title-updated', (event, title) => {
     if (title && !title.startsWith('file://')) {
       mainWindow.setTitle(`${title} - ${config.window.title}`);
@@ -890,18 +1114,28 @@ function setupWindowEvents() {
   });
 }
 
+// 窗口激活状态管理
+let isWindowFocused = false;
+
+// 检查快捷键是否应该生效
+function shouldShortcutWork() {
+  return mainWindow && isWindowFocused;
+}
+
 // 注册全局快捷键
 function registerShortcuts() {
   const { globalShortcut } = require('electron');
 
   // 打开设置
   globalShortcut.register(config.shortcuts.settings, () => {
+    if (!shouldShortcutWork()) return;
     createSettingsWindow();
     if (logger) logger.info('打开设置菜单');
   });
 
   // 刷新页面
   globalShortcut.register(config.shortcuts.reload, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       mainWindow.reload();
       if (logger) logger.info('页面已刷新');
@@ -910,6 +1144,7 @@ function registerShortcuts() {
 
   // 全屏切换
   globalShortcut.register(config.shortcuts.fullscreenToggle, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       const isFullscreen = !mainWindow.isFullScreen();
       mainWindow.setFullScreen(isFullscreen);
@@ -919,6 +1154,7 @@ function registerShortcuts() {
 
   // 后退
   globalShortcut.register(config.shortcuts.back, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow && mainWindow.webContents.canGoBack()) {
       mainWindow.webContents.goBack();
       if (logger) logger.info('页面后退');
@@ -927,6 +1163,7 @@ function registerShortcuts() {
 
   // 前进
   globalShortcut.register(config.shortcuts.forward, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow && mainWindow.webContents.canGoForward()) {
       mainWindow.webContents.goForward();
       if (logger) logger.info('页面前进');
@@ -935,6 +1172,7 @@ function registerShortcuts() {
 
   // 主页
   globalShortcut.register(config.shortcuts.home, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       const processedUrl = processUrl(config.url, config.localPageRoot);
       mainWindow.loadURL(processedUrl);
@@ -944,6 +1182,7 @@ function registerShortcuts() {
 
   // 放大页面
   globalShortcut.register(config.shortcuts.zoomIn, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       const currentZoom = mainWindow.webContents.getZoomLevel();
       mainWindow.webContents.setZoomLevel(currentZoom + 0.5);
@@ -953,6 +1192,7 @@ function registerShortcuts() {
 
   // 缩小页面
   globalShortcut.register(config.shortcuts.zoomOut, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       const currentZoom = mainWindow.webContents.getZoomLevel();
       mainWindow.webContents.setZoomLevel(currentZoom - 0.5);
@@ -962,6 +1202,7 @@ function registerShortcuts() {
 
   // 重置缩放
   globalShortcut.register(config.shortcuts.resetZoom, () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       mainWindow.webContents.setZoomLevel(0);
       if (logger) logger.info('重置页面缩放');
@@ -971,24 +1212,36 @@ function registerShortcuts() {
   // 开发者工具
   if (config.behavior.allowDevTools) {
     globalShortcut.register(config.shortcuts.devTools, () => {
+      if (!shouldShortcutWork()) return;
       if (mainWindow) {
         mainWindow.webContents.toggleDevTools();
+        if (logger) logger.info('切换开发者工具');
       }
     });
   }
 
   // 窗口控制快捷键
   globalShortcut.register('Ctrl+M', () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       mainWindow.minimize();
     }
   });
 
   globalShortcut.register('Ctrl+W', () => {
+    if (!shouldShortcutWork()) return;
     if (mainWindow) {
       mainWindow.close();
     }
   });
+}
+
+// 在 app.whenReady() 之前添加硬件加速设置
+if (!config.behavior.hardwareAcceleration) {
+  app.disableHardwareAcceleration();
+  if (logger) logger.info('硬件加速已禁用');
+} else {
+  if (logger) logger.info('硬件加速已启用');
 }
 
 // 应用事件处理

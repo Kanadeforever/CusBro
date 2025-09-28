@@ -54,6 +54,16 @@ function populateForm(config) {
     document.getElementById('enableContextMenu').checked = config.behavior.enableContextMenu;
     document.getElementById('allowDevTools').checked = config.behavior.allowDevTools;
     document.getElementById('ignoreCertificateErrors').checked = config.behavior.ignoreCertificateErrors;
+    document.getElementById('webSecurity').checked = config.behavior.webSecurity !== false;
+    document.getElementById('allowRunningInsecureContent').checked = config.behavior.allowRunningInsecureContent || false;
+    document.getElementById('allowDisplayingInsecureContent').checked = config.behavior.allowDisplayingInsecureContent || false;
+    document.getElementById('experimentalFeatures').checked = config.behavior.experimentalFeatures || false;
+    document.getElementById('plugins').checked = config.behavior.plugins || false;
+    document.getElementById('proxyServer').value = config.behavior.proxyServer || '';
+    document.getElementById('userAgent').value = config.behavior.userAgent || '';
+    document.getElementById('cacheSize').value = config.behavior.cacheSize || 100;
+    document.getElementById('enableRemoteModule').checked = config.behavior.enableRemoteModule || false;
+    document.getElementById('nodeIntegration').checked = config.behavior.nodeIntegration || false;
 
     document.getElementById('settings').value = config.shortcuts.settings;
     document.getElementById('reload').value = config.shortcuts.reload;
@@ -87,11 +97,20 @@ function getFormData() {
         behavior: {
             hardwareAcceleration: document.getElementById('hardwareAcceleration').checked,
             allowPopups: document.getElementById('allowPopups').checked,
-            // 修复：使用 window.originalConfig 而不是 originalConfig
             downloadPath: window.originalConfig?.behavior?.downloadPath || 'Downloads',
             enableContextMenu: document.getElementById('enableContextMenu').checked,
             allowDevTools: document.getElementById('allowDevTools').checked,
-            ignoreCertificateErrors: document.getElementById('ignoreCertificateErrors').checked
+            ignoreCertificateErrors: document.getElementById('ignoreCertificateErrors').checked,
+            webSecurity: document.getElementById('webSecurity').checked,
+            allowRunningInsecureContent: document.getElementById('allowRunningInsecureContent').checked,
+            allowDisplayingInsecureContent: document.getElementById('allowDisplayingInsecureContent').checked,
+            experimentalFeatures: document.getElementById('experimentalFeatures').checked,
+            plugins: document.getElementById('plugins').checked,
+            proxyServer: document.getElementById('proxyServer').value,
+            userAgent: document.getElementById('userAgent').value,
+            cacheSize: parseInt(document.getElementById('cacheSize').value) || 100,
+            enableRemoteModule: document.getElementById('enableRemoteModule').checked,
+            nodeIntegration: document.getElementById('nodeIntegration').checked
         },
         shortcuts: {
             settings: document.getElementById('settings').value || 'F1',

@@ -2,26 +2,37 @@
   "name": "cusbro",
   "version": "2.0.0-per",
   "description": "可以无地址栏的自定义浏览器",
-  "dependencies": {"toml": "^3.0.0"},
+  "dependencies": {
+    "toml": "^3.0.0"
+  },
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build-win": "electron-builder --win",
     "dist": "electron-builder --publish=never"
   },
-  "keywords": ["browser", "electron", "custom"],
+  "keywords": [
+    "browser",
+    "electron",
+    "custom"
+  ],
   "author": "Luminous",
   "license": "MIT",
-  "devDependencies": {"electron": "^38.2.0", "electron-builder": "^26.0.12"},
+  "devDependencies": {
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12"
+  },
   "build": {
     "appId": "com.luminous.cusbro",
     "productName": "CusBro",
     "asarUnpack": "node_modules/toml/**/*",
-    "directories": {"output": "dist"},
+    "directories": {
+      "output": "dist"
+    },
     "files": [
       "main.js",
       "preload.js",
-      "settings.html", 
+      "settings.html",
       "settings.js",
       "shortcuts-reference.html",
       "package.json",
@@ -41,10 +52,22 @@
       "!**/*.log"
     ],
     "extraResources": [
-      {"from": "preload.js", "to": "preload.js"},
-      {"from": "shortcuts-reference.html", "to": "shortcuts-reference.html"},
-      {"from": "settings.html", "to": "settings.html"},
-      {"from": "settings.js","to": "settings.js"}
+      {
+        "from": "preload.js",
+        "to": "preload.js"
+      },
+      {
+        "from": "shortcuts-reference.html",
+        "to": "shortcuts-reference.html"
+      },
+      {
+        "from": "settings.html",
+        "to": "settings.html"
+      },
+      {
+        "from": "settings.js",
+        "to": "settings.js"
+      }
     ],
     "nsis": {
       "oneClick": false,
@@ -53,8 +76,15 @@
       "createStartMenuShortcut": true
     },
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
-      "icon": "build/icon.ico"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/Copilot_20250929_034445_icon.ico"
     }
   }
 }

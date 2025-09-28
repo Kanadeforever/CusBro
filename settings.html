@@ -40,29 +40,24 @@
             <button class="category-btn" data-category="behavior">行为选项</button>
             <button class="category-btn" data-category="shortcuts">快捷键设置</button>
         </div>
-
         <div id="core-category" class="category">
             <div class="setting-item"><label class="setting-label">URL设置</label><input type="text" id="url" placeholder="例如: https://127.0.0.1:8384 或 local://index.html"></div>
             <div class="setting-item"><label class="setting-label">用户数据储存路径</label><input type="text" id="userDataPath" placeholder="./UserData"></div>
             <div class="setting-item"><label class="setting-label">本地应用储存路径</label><input type="text" id="localPageRoot" placeholder="./LocalPage"></div>
         </div>
-
         <div id="window-category" class="category">
             <div class="number-settings">
                 <div class="number-row">
                     <div class="number-item"><label class="setting-label">默认宽度</label><input type="number" id="width" min="400" max="3840"></div>
                     <div class="number-item"><label class="setting-label">默认高度</label><input type="number" id="height" min="300" max="2160"></div>
                 </div>
-
                 <div class="number-row">
                     <div class="number-item"><label class="setting-label">最小宽度</label><input type="number" id="minWidth" min="200" max="1920"></div>
                     <div class="number-item"><label class="setting-label">最小高度</label><input type="number" id="minHeight" min="150" max="1080"></div>
                 </div>
-            </div>
-
+        </div>
             <div class="setting-item"><label class="setting-label">窗口标题</label><input type="text" id="title"></div>
-
-            <div class="checkbox-settings">
+        <div class="checkbox-settings">
                 <div class="setting-item"><label><input type="checkbox" id="fullscreen">以全屏模式启动应用</label></div>
                 <div class="setting-item"><label><input type="checkbox" id="showControls">显示窗口控制按钮</label></div>
                 <div class="setting-item"><label><input type="checkbox" id="showMenuBar">显示菜单栏</label></div>
@@ -70,17 +65,26 @@
                 <div class="setting-item"><label><input type="checkbox" id="highDPIScaling">高DPI缩放</label></div>
             </div>
         </div>
-
         <div id="behavior-category" class="category">
-            <div class="setting-item"><label><input type="checkbox" id="hardwareAcceleration">启用硬件加速</label></div>
-            <div class="setting-item"><label><input type="checkbox" id="allowPopups">允许新窗口弹出</label></div>
-            <div class="setting-item"><label><input type="checkbox" id="enableContextMenu">启用页面右键菜单</label></div>
-            <div class="setting-item"><label><input type="checkbox" id="allowDevTools">允许开发者工具</label></div>
-            <div class="setting-item"><label><input type="checkbox" id="ignoreCertificateErrors">忽略证书错误</label></div>
+            <div class="checkbox-settings">
+                <div class="setting-item"><label><input type="checkbox" id="hardwareAcceleration">启用硬件加速</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="allowPopups">允许新窗口弹出</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="enableContextMenu">启用页面右键菜单</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="allowDevTools">允许开发者工具</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="ignoreCertificateErrors">忽略证书错误</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="webSecurity">启用Web安全策略</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="allowRunningInsecureContent">允许运行不安全内容</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="allowDisplayingInsecureContent">允许显示不安全内容</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="experimentalFeatures">启用实验性功能</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="plugins">启用插件支持</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="enableRemoteModule">启用远程模块（不安全）</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="nodeIntegration">启用Node集成（不安全）</label></div>
+            </div>
+            <div class="setting-item"><label class="setting-label">代理服务器</label><input type="text" id="proxyServer" placeholder="例如: http://proxy:8080"></div>
+            <div class="setting-item"><label class="setting-label">用户代理 (User Agent)</label><input type="text" id="userAgent" placeholder="自定义浏览器标识"></div>
+            <div class="setting-item"><label class="setting-label">缓存大小 (MB)</label><input type="number" id="cacheSize" min="0" max="1000" placeholder="默认: 100"></div>
         </div>
-
         <div id="shortcuts-category" class="category">
-            <!-- 快捷键设置部分：改为两列五行 -->
             <div class="shortcuts-settings">
                 <div class="setting-item"><label class="setting-label">打开设置菜单</label><input type="text" id="settings" placeholder="F1"></div>
                 <div class="setting-item"><label class="setting-label">刷新页面</label><input type="text" id="reload" placeholder="F5"></div>
@@ -94,7 +98,6 @@
                 <div class="setting-item"><label class="setting-label">开发者工具</label><input type="text" id="devTools" placeholder="F12"></div>
             </div>
         </div>
-
         <div class="buttons">
             <div class="left-buttons">
                 <button class="reset-btn" onclick="resetToDefault()">恢复本页为默认选项</button>
@@ -106,7 +109,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // 打开参考链接的函数
         function openReference() {
