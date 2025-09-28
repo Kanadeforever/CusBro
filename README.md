@@ -62,3 +62,4 @@
 - [DeepSeek](https://chat.deepseek.com): 一切的基础，一切的核心，我只是一个设计者，或者不算设计者，它才是干活的那个；
 - [Electron](https://github.com/electron/electron): 还得是你；
 - [Node.js](https://nodejs.org/zh-cn): 其实……我一点都不懂你，但是现在懂一点了；
+- [Microsoft Copilot](https://copilot.microsoft.com/): 生成icon用图的，是的，那个蝴蝶结是找copilot生成的；
