@@ -1,27 +1,37 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>设置</title>
     <style>
-        body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:20px;background:#f5f5f5;}
-        .settings-container {background:white;border-radius:8px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+        body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0;padding:10px;background:#f5f5f5;}
+        .settings-container {background:white;border-radius:8px;padding:15px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
         .category {display:none;}
         .category.active {display:block;}
-        .setting-item {margin-bottom:15px;padding:10px;border-bottom:1px solid #eee;}
-        .setting-label {display:block;margin-bottom:5px;font-weight:bold;color:#333;}
-        input[type="text"],input[type="number"] {width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;}
-        input[type="checkbox"] {margin-right:10px;}
-        .buttons {margin-top:20px;text-align:right;}
-        button {padding:8px 16px;margin-left:10px;border:none;border-radius:4px;cursor:pointer;}
+        .setting-item {margin-bottom:8px;padding:5px;border-bottom:1px solid #eee;}
+        .setting-label {display:block;margin-bottom:3px;font-weight:bold;color:#333;font-size:14px;}
+        input[type="text"],input[type="number"] {width:100%;padding:6px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;font-size:14px;}
+        input[type="checkbox"] {margin-right:8px;transform:scale(0.9);}
+        .buttons {margin-top:15px;text-align:right;display:flex;justify-content:space-between;align-items:center;}
+        .left-buttons {display:flex;align-items:center;}
+        button {padding:6px 12px;margin-left:8px;border:none;border-radius:4px;cursor:pointer;font-size:14px;}
         .save-btn {background:#007acc;color:white;}
         .cancel-btn {background:#6c757d;color:white;}
-        .reset-btn {background:#dc3545;color:white;float:left;}
-        .category-selector {margin-bottom:20px;}
-        .category-btn {padding:8px 16px;margin-right:5px;border:1px solid #ddd;background:#f8f9fa;cursor:pointer;}
+        .reset-btn {background:#dc3545;color:white;}
+        .reference-btn {background:#FFA500; color:white;padding:6px 12px;margin-left:8px;border:none;border-radius:4px;cursor:pointer;font-size:14px;}
+        .category-selector {margin-bottom:15px;}
+        .category-btn {padding:6px 12px;margin-right:3px;border:1px solid #ddd;background:#f8f9fa;cursor:pointer;font-size:14px;}
         .category-btn.active {background:#007acc;color:white;border-color:#007acc;}
+        .number-settings {display:grid;grid-template-rows:auto auto;gap:8px;margin-bottom:15px;}
+        .number-row {display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+        .number-item .setting-label {margin-bottom:3px;}
+        .checkbox-settings {display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+        .shortcuts-settings {display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
     </style>
 </head>
+
 <body>
     <div class="settings-container">
         <div class="category-selector">
@@ -38,16 +48,27 @@
         </div>
 
         <div id="window-category" class="category">
-            <div class="setting-item"><label class="setting-label">默认宽度</label><input type="number" id="width" min="400" max="3840"></div>
-            <div class="setting-item"><label class="setting-label">默认高度</label><input type="number" id="height" min="300" max="2160"></div>
-            <div class="setting-item"><label class="setting-label">最小宽度</label><input type="number" id="minWidth" min="200" max="1920"></div>
-            <div class="setting-item"><label class="setting-label">最小高度</label><input type="number" id="minHeight" min="150" max="1080"></div>
-            <div class="setting-item"><label><input type="checkbox" id="fullscreen">以全屏模式启动应用</label></div>
+            <div class="number-settings">
+                <div class="number-row">
+                    <div class="number-item"><label class="setting-label">默认宽度</label><input type="number" id="width" min="400" max="3840"></div>
+                    <div class="number-item"><label class="setting-label">默认高度</label><input type="number" id="height" min="300" max="2160"></div>
+                </div>
+
+                <div class="number-row">
+                    <div class="number-item"><label class="setting-label">最小宽度</label><input type="number" id="minWidth" min="200" max="1920"></div>
+                    <div class="number-item"><label class="setting-label">最小高度</label><input type="number" id="minHeight" min="150" max="1080"></div>
+                </div>
+            </div>
+
             <div class="setting-item"><label class="setting-label">窗口标题</label><input type="text" id="title"></div>
-            <div class="setting-item"><label><input type="checkbox" id="showControls">显示窗口控制按钮</label></div>
-            <div class="setting-item"><label><input type="checkbox" id="showMenuBar">显示菜单栏</label></div>
-            <div class="setting-item"><label><input type="checkbox" id="resizable">窗口大小是否可调</label></div>
-            <div class="setting-item"><label><input type="checkbox" id="highDPIScaling">高DPI缩放</label></div>
+
+            <div class="checkbox-settings">
+                <div class="setting-item"><label><input type="checkbox" id="fullscreen">以全屏模式启动应用</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="showControls">显示窗口控制按钮</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="showMenuBar">显示菜单栏</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="resizable">窗口大小是否可调</label></div>
+                <div class="setting-item"><label><input type="checkbox" id="highDPIScaling">高DPI缩放</label></div>
+            </div>
         </div>
 
         <div id="behavior-category" class="category">
@@ -59,25 +80,43 @@
         </div>
 
         <div id="shortcuts-category" class="category">
-            <div class="setting-item"><label class="setting-label">打开设置菜单</label><input type="text" id="settings" placeholder="F1"></div>
-            <div class="setting-item"><label class="setting-label">刷新页面</label><input type="text" id="reload" placeholder="F5"></div>
-            <div class="setting-item"><label class="setting-label">全屏切换</label><input type="text" id="fullscreenToggle" placeholder="F11"></div>
-            <div class="setting-item"><label class="setting-label">后退</label><input type="text" id="back" placeholder="Alt+Left"></div>
-            <div class="setting-item"><label class="setting-label">前进</label><input type="text" id="forward" placeholder="Alt+Right"></div>
-            <div class="setting-item"><label class="setting-label">主页</label><input type="text" id="home" placeholder="Alt+Home"></div>
-            <div class="setting-item"><label class="setting-label">放大页面</label><input type="text" id="zoomIn" placeholder="Ctrl+Plus"></div>
-            <div class="setting-item"><label class="setting-label">缩小页面</label><input type="text" id="zoomOut" placeholder="Ctrl+-"></div>
-            <div class="setting-item"><label class="setting-label">实际大小</label><input type="text" id="resetZoom" placeholder="Ctrl+0"></div>
-            <div class="setting-item"><label class="setting-label">开发者工具</label><input type="text" id="devTools" placeholder="F12"></div>
+            <!-- 快捷键设置部分：改为两列五行 -->
+            <div class="shortcuts-settings">
+                <div class="setting-item"><label class="setting-label">打开设置菜单</label><input type="text" id="settings" placeholder="F1"></div>
+                <div class="setting-item"><label class="setting-label">刷新页面</label><input type="text" id="reload" placeholder="F5"></div>
+                <div class="setting-item"><label class="setting-label">全屏切换</label><input type="text" id="fullscreenToggle" placeholder="F11"></div>
+                <div class="setting-item"><label class="setting-label">后退</label><input type="text" id="back" placeholder="Alt+Left"></div>
+                <div class="setting-item"><label class="setting-label">前进</label><input type="text" id="forward" placeholder="Alt+Right"></div>
+                <div class="setting-item"><label class="setting-label">主页</label><input type="text" id="home" placeholder="Alt+Home"></div>
+                <div class="setting-item"><label class="setting-label">放大页面</label><input type="text" id="zoomIn" placeholder="Ctrl+Plus"></div>
+                <div class="setting-item"><label class="setting-label">缩小页面</label><input type="text" id="zoomOut" placeholder="Ctrl+-"></div>
+                <div class="setting-item"><label class="setting-label">实际大小</label><input type="text" id="resetZoom" placeholder="Ctrl+0"></div>
+                <div class="setting-item"><label class="setting-label">开发者工具</label><input type="text" id="devTools" placeholder="F12"></div>
+            </div>
         </div>
 
         <div class="buttons">
-            <button class="reset-btn" onclick="resetToDefault()">恢复本页为默认选项</button>
-            <button class="cancel-btn" onclick="cancel()">取消</button>
-            <button class="save-btn" onclick="save()">保存</button>
+            <div class="left-buttons">
+                <button class="reset-btn" onclick="resetToDefault()">恢复本页为默认选项</button>
+                <button class="reference-btn" onclick="openReference()">快捷键填写参考</button>
+            </div>
+            <div>
+                <button class="cancel-btn" onclick="cancel()">取消</button>
+                <button class="save-btn" onclick="save()">保存</button>
+            </div>
         </div>
     </div>
 
+    <script>
+        // 打开参考链接的函数
+        function openReference() {
+            // 打开本地快捷键参考页面
+            window.open('./shortcuts-reference.html', 'shortcutsReference',
+                'width=1024,height=768,menubar=no,toolbar=no,location=no,status=no');
+        }
+    </script>
+
     <script src="settings.js"></script>
 </body>
+
 </html>

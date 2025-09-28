@@ -730,7 +730,7 @@ function createChineseMenu() {
           click: () => {
             dialog.showMessageBox(mainWindow, {
               type: 'info',
-              title: '关于 CusBro',
+              title: '关于',
               message: '自定义浏览器',
               detail: '版本 2.0.0\n\nElectron版本 38.2.0\n\nElectron-Builder版本 26.0.12\n\n\n基于 Electron 框架构建，集成设置系统和日志功能。\n作用是拿来打开一些只有webui的应用。\n\n我知道肯定有人会说“用浏览器就好了呀？”\n有没有可能有的人就是觉得用主浏览器太重了？\n有时候只想打开一个应用，而不想开浏览器？\n又或者打开浏览器但不想看到标题栏和标签栏？\n等等等等……\n这个拿electron+deepseek简单写的应用就是为了这样的场景而生的。\n而且本就是自用，分享出来不过是为了给有同样需求但不太会编程的朋友一个凑合用的方案。\n毕竟陶德说过，"it just works!"\n\n至于为什么用electron？\n水平不行是一方面，之前1.0.0版用python+webview做的那个只有最基本的功能，实在是有点不满意……\n至于现在嘛……凑合用吧，至少凑合用的话个人还算满意了。\n\n\n“是的,它能跑!”\n\n                                                by Luminous'
             });
