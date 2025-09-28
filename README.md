@@ -1,7 +1,7 @@
 # CusBro
 一个使用Electron构建的、为任意使用webui的应用“套壳”的多此一举的应用。
 
-名称来源：custom browser => 日系缩写法 => [Cus]~~~tom~~~ [Bro]~~~wser~~~
+名称来源：Customized Browser => 日系缩写法 => [Cus]~tomized~ [Bro]~wser~ => [CusBro]
 
 ## 关于应用
 这只是一个公开发布的个人应用，所以这个readme会写的非常随意，本应用也是非常随意的玩意。
